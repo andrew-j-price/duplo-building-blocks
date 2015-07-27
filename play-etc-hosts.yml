@@ -1,0 +1,10 @@
+---
+- hosts: all
+  sudo: yes
+  gather_facts: yes
+
+  tasks:
+  - lineinfile: dest=/etc/hosts regexp='^127\.0\.0\.1' line='127.0.0.1 localhost' owner=root group=root mode=0644
+  - lineinfile: dest=/etc/hosts regexp='^192\.168\.56\.71' line='192.168.56.71 mgmt' owner=root group=root mode=0644
+  - lineinfile: dest=/etc/hosts regexp='^192\.168\.56\.72' line='192.168.56.72 web' owner=root group=root mode=0644
+  - lineinfile: dest=/etc/hosts regexp='^192\.168\.56\.73' line='192.168.56.73 db' owner=root group=root mode=0644
