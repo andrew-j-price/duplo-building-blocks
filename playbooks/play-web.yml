@@ -1,8 +1,8 @@
 ---
-- hosts: all
+- hosts: web-servers
   sudo: yes
-  gather_facts: no
-  
+  gather_facts: yes
+
   tasks:
     - name: install packages
       apt: name={{ item }} state=present update_cache=yes

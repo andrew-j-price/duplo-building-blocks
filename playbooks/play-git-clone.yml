@@ -1,0 +1,45 @@
+---
+- hosts: all
+  sudo: yes
+  gather_facts: yes
+
+  tasks:
+  - name: install packages on Debian based
+    apt: name={{ item }} state=present update_cache=yes
+    with_items:
+      - git
+    when: ansible_os_family =='Debian'
+
+  - name: install packages on RHEL based
+    yum: name={{ item }} state=present update_cache=yes
+    with_items:
+      - git
+    when: ansible_os_family =='RedHat'
+
+  - name: ensure github.com is a known host
+    lineinfile:
+      dest: /home/vagrant/.ssh/known_hosts
+      create: yes
+      state: present
+      line: "{{ lookup('pipe', 'ssh-keyscan -t rsa github.com') }}"
+      regexp: "^github\\.com"
+
+  - name: change owner of known_hosts
+    file: 
+      path: /home/vagrant/.ssh/known_hosts
+      owner: vagrant
+      group: vagrant
+      mode: 0644
+
+  - name: Create git repo directory
+    file: 
+      path: /home/vagrant/git
+      state: directory 
+      owner: vagrant
+      group: vagrant
+      mode: 0755
+
+  - name: download git repo
+    git: 
+      repo: https://github.com/andrew-j-price/ansible-mysql-deploy-secure.git
+      dest: /home/vagrant/git/ansible-mysql-deploy-secure
