@@ -1,16 +1,28 @@
 ---
 
-- name: install packages on RHEL based OS
-  yum: name={{ item }} state=present #update_cache=yes
-  with_items:
-    - haproxy
-  when: ansible_os_family =='RedHat'
-
 - name: install packages on Ubuntu
   apt: name={{ item }} state=present #update_cache=yes
   with_items:
     - haproxy
   when: ansible_os_family =='Debian'
+
+- name: Configure binding to non-local IPs
+  lineinfile:
+    dest: /etc/sysctl.conf
+    line: "net.ipv4.ip_nonlocal_bind=1"
+    regexp: "^net.ipv4.ip_nonlocal_bind"
+  register: non_local_bindings
+
+- name: Enable binding to non-local IPs  # otherwise the haproxy service will fail to start on secondary
+  shell: "sysctl -p"
+  when: non_local_bindings.changed
+
+- name: Enable haproxy init scripts
+  lineinfile:
+    dest: /etc/default/haproxy
+    line: "ENABLED=1"
+    regexp: "^ENABLED"
+  notify: restart haproxy
 
 - name: Copy config file
   template:
@@ -20,8 +32,8 @@
     backup: yes
   notify: reload haproxy
 
-- name: enable service on startup
-  service: name=haproxy enabled=yes
-
-- name: start service
-  service: name=haproxy state=started
+- name: Start the service and enable service on startup
+  service:
+    name: haproxy
+    enabled: yes
+    state: started

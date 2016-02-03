@@ -1,0 +1,37 @@
+! Configuration File for keepalived
+
+global_defs {
+}
+
+vrrp_script chk_haproxy {
+    script "killall -0 haproxy"
+    interval 2
+    weight 2
+}
+
+vrrp_instance VI_1 {
+  virtual_router_id {{ keepalived_router_id }}
+
+  # how often we vote in seconds
+  advert_int 1
+
+  # highest priority is the winner
+  state {{ keepalived_role }}
+  {% if keepalived_role.lower() == "master" %}priority 100
+  {% else %}priority 99
+  {% endif %}
+  
+  interface {{ keepalived_shared_iface }}
+
+  virtual_ipaddress {
+    {{ keepalived_shared_vip }} dev {{ keepalived_shared_iface }} label {{ keepalived_shared_iface }}:0
+  }
+    track_script {
+      chk_haproxy
+    }
+
+  authentication {
+    auth_type PASS
+    auth_pass {{ keepalived_auth_pass }}
+  }
+}

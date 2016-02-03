@@ -8,11 +8,10 @@ global
     group       haproxy
     daemon
 
-    # turn on stats unix socket
-    stats socket /var/lib/haproxy/stats
+    stats socket /var/lib/haproxy/stats level admin
 
 defaults
-    mode                    http
+    mode                    tcp
     log                     global
     option                  httplog
     option                  dontlognull

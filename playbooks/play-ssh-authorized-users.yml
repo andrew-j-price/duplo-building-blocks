@@ -4,14 +4,20 @@
   gather_facts: no
 
   tasks:
-  - name: setup SSH trust amongst instances
-    authorized_key: 
+  - name: setup SSH trust amongst instances from Duplo instance for Vagrant # uses key created from play-ssh-keygen.yml
+    authorized_key:
       user: vagrant
       key: "{{ lookup('file', '/home/vagrant/.ssh/id_rsa.pub') }}"
       state: present
 
+  #- name: setup SSH trust amongst instances from Duplo instance for Root # uses key created from play-ssh-keygen.yml
+  #  authorized_key: 
+  #    user: root
+  #    key: "{{ lookup('file', '/root/.ssh/id_rsa.pub') }}"
+  #    state: present
+
   - name: Add ssh public key to vagrant account
-    authorized_key: 
+    authorized_key:
       user: vagrant
       key: "{{ item }}"
       state: present 
@@ -25,3 +31,19 @@
       state: present
     with_file:
       - myPublicKey
+
+#  - name: add instances to known_hosts
+#    lineinfile:
+#      dest: /home/vagrant/.ssh/known_hosts
+#      create: yes
+#      state: present
+#      line: "{{ lookup('pipe', 'ssh-keyscan -t rsa lb01') }}"
+#      regexp: "^lb01"
+
+#  - name: add instances to known_hosts
+#    lineinfile:
+#      dest: /home/vagrant/.ssh/known_hosts
+#      create: yes
+#      state: present
+#      line: "{{ lookup('pipe', 'ssh-keyscan -t rsa lb02') }}"
+#      regexp: "^lb02"

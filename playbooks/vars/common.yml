@@ -1,8 +1,18 @@
 ---
 
+keepalived_shared_iface: "eth1"
+keepalived_shared_vip: "192.168.56.70"
+
 haproxy_line_item:
+  - 'listen stats :8181'
+  - ' mode http'
+  - ' stats enable'
+  - ' stats realm Haproxy\ Statistics'
+  - ' stats uri /'
+  - ' stats auth haproxy:haproxy'
+  - ' '
   - 'listen web-servers-nginx'
-  - ' bind 192.168.56.70:80'
+  - ' bind {{ keepalived_shared_vip }}:80'
   - ' balance  roundrobin'
   - ' mode  http'
   - ' server web01 192.168.56.73:80 check inter 2000 rise 2 fall 5'
@@ -10,15 +20,15 @@ haproxy_line_item:
   - ' server web03 192.168.56.75:80 check inter 2000 rise 2 fall 5'
   - ' '
   - 'listen web-servers-tomcat'
-  - ' bind 192.168.56.70:8080'
+  - ' bind {{ keepalived_shared_vip }}:8080'
   - ' balance  roundrobin'
   - ' mode  http'
-  - ' server web01 192.168.56.73:80 check inter 2000 rise 2 fall 5'
-  - ' server web02 192.168.56.74:80 check inter 2000 rise 2 fall 5'
-  - ' server web03 192.168.56.75:80 check inter 2000 rise 2 fall 5'
+  - ' server web01 192.168.56.73:8080 check inter 2000 rise 2 fall 5'
+  - ' server web02 192.168.56.74:8080 check inter 2000 rise 2 fall 5'
+  - ' server web03 192.168.56.75:8080 check inter 2000 rise 2 fall 5'
   - ' '
   - 'listen db-servers-mysql'
-  - ' bind 192.168.56.70:3306'
+  - ' bind {{ keepalived_shared_vip }}:3306'
   - ' balance  roundrobin'
   - ' mode  tcp'
   - ' server db01 192.168.56.76:3306 check inter 2000 rise 2 fall 5'

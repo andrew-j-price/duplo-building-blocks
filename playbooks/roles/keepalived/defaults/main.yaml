@@ -1,0 +1,8 @@
+---
+
+keepalived_auth_pass: "something"         # only first 8 characters matter
+keepalived_priority: "100"
+keepalived_role: "MASTER"
+keepalived_router_id: "51"
+keepalived_shared_iface: "eth0"
+keepalived_shared_vip: "169.254.111.11"

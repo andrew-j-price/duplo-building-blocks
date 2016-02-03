@@ -55,7 +55,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     config.vm.network :private_network, ip: "192.168.56.76", :adapter => 2
     config.vm.provider "virtualbox" do |vb|
       vb.name = "db01"
-      vb.memory = 512
+      vb.memory = 384
       vb.cpus = 1
     end
   end
@@ -72,8 +72,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
       vb.customize ["modifyvm", :id, "--ioapic", "on"]
     end
-    config.vm.provision "file", source: "ansible.cfg", destination: "~/ansible.cfg"
-    config.vm.provision "file", source: "hosts", destination: "~/hosts"
+    config.vm.provision "file", source: "ansible_control_files/ansible.cfg", destination: "~/ansible.cfg"
+    config.vm.provision "file", source: "ansible_control_files/hosts", destination: "~/hosts"
     config.vm.provision "shell", inline: $configure
   end
   

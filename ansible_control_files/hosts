@@ -1,0 +1,23 @@
+[local]
+local     ansible_ssh_host=127.0.0.1     ansible_ssh_port=22     
+
+[lb-servers]
+lb01      keepalived_role=master
+lb02      keepalived_role=slave
+
+[web-servers]
+web01
+web02
+
+[db-servers]
+db01
+
+[vagrant-servers:children]
+local
+lb-servers
+web-servers
+db-servers
+
+[vagrant-servers:vars]
+ansible_ssh_user=vagrant
+ansible_ssh_pass=vagrant
