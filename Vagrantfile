@@ -89,7 +89,6 @@ $configure = <<SCRIPT
   ansible-playbook /vagrant/playbooks/play-ssh-keygen.yml -l local
   ansible-playbook /vagrant/playbooks/play-ssh-authorized-users.yml
   ansible-playbook /vagrant/playbooks/play-load-balancer.yml
-  ansible-playbook /vagrant/playbooks/play-web.yml
-  ansible-playbook /vagrant/playbooks/play-git-clone.yml -l local
-  ansible-playbook /home/vagrant/git/ansible-mysql-deploy-secure/play.yml -l db-servers
+  ansible-playbook /vagrant/playbooks/play-web-server.yml
+  ansible-playbook /vagrant/playbooks/play-db-server.yml
 SCRIPT

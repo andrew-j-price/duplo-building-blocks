@@ -1,0 +1,4 @@
+---
+
+mysql_root_password: "Password123"
+mysql_allow_from: "192.168.1.%"

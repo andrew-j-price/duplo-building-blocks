@@ -3,6 +3,11 @@
 keepalived_shared_iface: "eth1"
 keepalived_shared_vip: "192.168.56.70"
 
+nginx_default_port: "80"
+
+mysql_root_password: "Password123"
+mysql_allow_from: "192.168.56.%"
+
 haproxy_line_item:
   - 'listen stats :8181'
   - ' mode http'

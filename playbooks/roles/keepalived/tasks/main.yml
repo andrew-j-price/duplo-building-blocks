@@ -1,10 +1,16 @@
 ---
 
-- name: install packages on Ubuntu
-  apt: name={{ item }} state=present #update_cache=yes
+- name: Update cache if greater than 3600 seconds (1 hour)
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Install packages on Ubuntu
+  apt:
+    name: "{{ item }}"
+    state: present
   with_items:
     - keepalived
-  when: ansible_os_family =='Debian'
 
 - name: copy conf file
   template:

@@ -1,0 +1,17 @@
+<html>
+<head>
+<title>Welcome to nginx!</title>
+<style>
+    body {
+        width: 35em;
+        margin: 0 auto;
+        font-family: Tahoma, Verdana, Arial, sans-serif;
+    }
+</style>
+</head>
+<body>
+<h1>Welcome to nginx!</h1> 
+<h1>On {{ ansible_hostname }}</h1> 
+<h1>At {{ facter_ipaddress_eth1 }}</h1>
+</body>
+</html>

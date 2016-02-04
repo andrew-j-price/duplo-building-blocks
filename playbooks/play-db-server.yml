@@ -1,0 +1,8 @@
+---
+- hosts: db-servers
+  sudo: yes
+  gather_facts: True
+  vars_files:
+    - vars/common.yml
+  roles:
+    - mysql
