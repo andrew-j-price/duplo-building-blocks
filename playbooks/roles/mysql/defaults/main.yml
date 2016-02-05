@@ -1,4 +1,4 @@
 ---
 
 mysql_root_password: "Password123"
-mysql_allow_from: "192.168.1.%"
+mysql_allow_from: "127.0.0.1"

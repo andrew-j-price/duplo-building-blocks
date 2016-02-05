@@ -1,0 +1,89 @@
+---
+
+- name: Update cache if greater than 3600 seconds (1 hour)
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Install packages on Ubuntu
+  apt:
+    name: "{{ item }}"
+    state: present
+  with_items:  
+    - openjdk-7-jre
+
+- name: download tomcat
+  get_url:
+    url: "{{ tomcat_source_location }}"
+    dest: "{{ tomcat_download_destination }}"
+    checksum: "md5:{{ tomcat_source_md5 }}"
+
+- name: Create tomcat user group
+  group: 
+    name: "{{ tomcat_group }}"
+    state: present
+
+- name: Create tomcat user account
+  user: 
+    name: "{{ tomcat_user }}" 
+    group: "{{ tomcat_group }}" 
+    shell: /bin/bash 
+    home: "{{ tomcat_destination_root }}/apache-tomcat-{{ tomcat_edition }}"
+
+- name: create directory for extraction
+  file:
+    path: "{{ tomcat_destination_root }}/apache-tomcat-{{ tomcat_edition }}"
+    owner: "{{ tomcat_user }}"
+    group: "{{ tomcat_group }}"
+    state: directory
+    mode: 0755
+
+- name: create symlink 
+  file:
+    src: "{{ tomcat_destination_root }}/apache-tomcat-{{ tomcat_edition }}"
+    dest: "{{ tomcat_destination_root }}/{{ tomcat_destination_folder }}"
+    owner: "{{ tomcat_user }}"
+    group: "{{ tomcat_group }}"
+    state: link
+
+- name: extract tomcat
+  unarchive:
+    src: "{{ tomcat_download_destination }}"
+    dest: "{{ tomcat_destination_root }}"
+    copy: no
+
+- name: Set permission
+  shell: "chown -Rf {{ tomcat_user }}:{{ tomcat_group }} {{ tomcat_destination_root }}/apache-tomcat-{{ tomcat_edition }}"
+
+- name: Copy server.xml
+  template:
+    src: server.xml.j2
+    dest: "{{ tomcat_destination_root }}/{{ tomcat_destination_folder }}/conf/server.xml"
+    owner: "{{ tomcat_user }}"
+    group: "{{ tomcat_group }}"
+    mode: 0600
+    backup: yes
+
+- name: Copy tomcat-users.xml
+  template:
+    src: tomcat-users.xml.j2
+    dest: "{{ tomcat_destination_root }}/{{ tomcat_destination_folder }}/conf/tomcat-users.xml"
+    owner: "{{ tomcat_user }}"
+    group: "{{ tomcat_group }}"
+    mode: 0600
+    backup: yes
+
+- name: Copy tomcat init script
+  template:
+    src: tomcat.init.j2
+    dest: /etc/init.d/tomcat
+    owner: root
+    group: root
+    mode: 0755
+    backup: no
+
+- name: Start the service and enable on startup
+  service:
+    name: tomcat
+    enabled: yes
+    state: restarted

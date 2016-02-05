@@ -19,12 +19,12 @@
     mode: 0644
   notify: restart keepalived
 
-- name: enable service on startup
+- name: Enable service on startup
   service: 
     name: keepalived 
     enabled: yes
 
-- name: start the service
+- name: Start the service
   service: 
     name: keepalived 
     state: started

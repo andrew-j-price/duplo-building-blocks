@@ -1,8 +1,10 @@
 ---
 - hosts: web-servers
-  sudo: yes
+  become: yes
+  become_user: root
   gather_facts: True
   vars_files:
     - vars/common.yml
   roles:
     - nginx
+    - tomcat

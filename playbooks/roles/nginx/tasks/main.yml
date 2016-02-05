@@ -12,7 +12,7 @@
   with_items:
     - nginx
 
-- name: Copy html index
+- name: Copy html index file
   template:
     src: index.html.j2
     dest: /usr/share/nginx/html/index.html
@@ -27,7 +27,7 @@
     backup: yes
   notify: reload nginx
 
-- name: enable service on startup
+- name: Start the service and enable on startup
   service:
     name: nginx
     enabled: yes

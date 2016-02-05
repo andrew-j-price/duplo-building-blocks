@@ -38,7 +38,7 @@
     backup: yes
   notify: reload haproxy
 
-- name: Start the service and enable service on startup
+- name: Start the service and enable on startup
   service:
     name: haproxy
     enabled: yes

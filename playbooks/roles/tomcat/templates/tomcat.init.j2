@@ -1,0 +1,61 @@
+#!/bin/sh
+# chkconfig: 2345 80 20
+
+# -----------------------------------------------------------
+# MODIFY THE FOLLOWING VARIABLES FOR YOUR INSTALLATION
+# -----------------------------------------------------------
+#
+app_home={{ tomcat_destination_root }}/{{ tomcat_destination_folder }}/bin/
+app_user=tomcat
+CATALINA_OPTS=" -Djava.net.preferIPv4Stack=true"
+# -----------------------------------------------------------
+
+export CATALINA_OPTS
+
+if [ -z $app_home -o -z $app_user ]; then
+        echo "ERROR: you must set the values of app_home and app_user in $0"
+    exit 1;
+fi;
+
+app_startup="$app_home/startup.sh"
+app_shutdown="$app_home/shutdown.sh"
+
+start(){
+ echo $"Starting Tomcat service: "
+ su $app_user -c "$app_startup"
+ RETVAL=$?
+ echo
+}
+
+stop(){
+ echo $"Stopping Tomcat service: "
+ su $app_user -c "$app_shutdown"
+ RETVAL=$?
+ echo
+}
+
+restart(){
+  stop
+  start
+}
+
+
+case "$1" in
+start)
+ start
+ ;;
+stop)
+ stop
+ ;;
+status)
+ echo "Status check does not work ;)"
+ ;;
+restart)
+ restart
+ ;;
+*)
+ echo $"Usage: $0 {start|stop|status|restart}"
+ exit 1
+esac
+
+exit 0

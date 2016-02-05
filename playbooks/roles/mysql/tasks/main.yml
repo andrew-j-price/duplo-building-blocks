@@ -50,6 +50,7 @@
     owner: root
     group: root
     mode: 0644
+    backup: yes
 
 - name: Configure mysql bindings
   lineinfile:
@@ -58,7 +59,7 @@
     regexp: "^bind-address"
   notify: restart mysql
 
-- name: Start service and enable on startup
+- name: Start the service and enable on startup
   service:
     name: mysql
     enabled: yes
