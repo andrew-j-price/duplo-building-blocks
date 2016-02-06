@@ -11,3 +11,8 @@ tomcat_user: "tomcat"
 tomcat_users_username: "admin"
 tomcat_users_password: "admin"
 tomcat_port_default: 8080
+
+tomcat_sample_app_name: "mysql-sample"
+tomcat_sample_app_mysql_user: "tomcat-user"
+tomcat_sample_app_mysql_password: "Password123"
+tomcat_sample_app_mysql_database: "tomcat_sample"

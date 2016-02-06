@@ -26,10 +26,26 @@
 
 - name: Remove the MySQL test database
   mysql_db:
-    db: test
+    name: test
     state: absent
 
-- name: Update MySQL Root Password
+- name: Create Tomcat Sample database
+  mysql_db:
+    name: "{{ tomcat_sample_app_mysql_database }}"
+    state: present
+  register: db_created
+
+- name: Copy tomcat-sample-data.sql
+  copy:
+    src: tomcat-sample-data.sql
+    dest: /tmp/tomcat-sample-data.sql
+    owner: root
+    group: root
+    mode: 0644
+    backup: no
+  when: db_created.changed
+
+- name: Create and Update MySQL Root Password
   mysql_user:
     name: root
     host: "{{ item }}"
@@ -40,7 +56,6 @@
     - "::1"
     - "{{ ansible_hostname }}"
     - "{{ ansible_nodename }}"
-    - "{{ mysql_allow_from }}"
     - localhost
 
 - name: Copy MySQL client config
@@ -51,6 +66,26 @@
     group: root
     mode: 0644
     backup: yes
+
+- name: Import data for Tomcat Sample Database
+  mysql_db:
+    name: "{{ tomcat_sample_app_mysql_database }}"
+    login_user: root
+    login_password: "{{ mysql_root_password }}"
+    state: import
+    target: /tmp/tomcat-sample-data.sql
+  when: db_created.changed
+
+- name: Create and Update MySQL Tomcat Sample App User and Password
+  mysql_user:
+    name: "{{ tomcat_sample_app_mysql_user }}"
+    host: "{{ item }}"
+    password: "{{ tomcat_sample_app_mysql_password }}"
+    priv: "{{ tomcat_sample_app_mysql_database }}.*:ALTER,DELETE,INSERT,SELECT,UPDATE"
+    state: present
+  with_items:
+    - "lb01"
+    - "lb02"
 
 - name: Configure mysql bindings
   lineinfile:

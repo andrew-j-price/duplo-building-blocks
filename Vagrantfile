@@ -54,7 +54,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     config.vm.hostname = "db01"
     config.vm.network :private_network, ip: "192.168.56.76", :adapter => 2
     config.vm.provider "virtualbox" do |vb|
-      vb.name = "db01"
+      vb.name = "db1"
       vb.memory = 384
       vb.cpus = 1
     end

@@ -17,6 +17,7 @@
     url: "{{ tomcat_source_location }}"
     dest: "{{ tomcat_download_destination }}"
     checksum: "md5:{{ tomcat_source_md5 }}"
+  register: version
 
 - name: Create tomcat user group
   group: 
@@ -51,6 +52,72 @@
     src: "{{ tomcat_download_destination }}"
     dest: "{{ tomcat_destination_root }}"
     copy: no
+  when: version.changed
+
+# Prompting for vagrant password, will use long/individual method for now
+#- name: synchronize sample mysql app
+#  synchronize:
+#    src: mysql-sample/
+#    dest: "{{ tomcat_destination_root }}/apache-tomcat-{{ tomcat_edition }}/webapps/{{ tomcat_sample_app_name }}"
+#    recursive: yes
+#    delete: yes
+
+# Begin long/individual version
+
+- name: create directories for sample mysql app
+  file:
+    path: "{{ item }}"
+    owner: "{{ tomcat_user }}"
+    group: "{{ tomcat_group }}"
+    state: directory
+    mode: 0755
+  with_items:
+    - "{{ tomcat_destination_root }}/{{ tomcat_destination_folder }}/webapps/{{ tomcat_sample_app_name }}"
+    - "{{ tomcat_destination_root }}/{{ tomcat_destination_folder }}/webapps/{{ tomcat_sample_app_name }}/META-INF"
+    - "{{ tomcat_destination_root }}/{{ tomcat_destination_folder }}/webapps/{{ tomcat_sample_app_name }}/WEB-INF"
+    - "{{ tomcat_destination_root }}/{{ tomcat_destination_folder }}/webapps/{{ tomcat_sample_app_name }}/WEB-INF/lib"
+
+- name: copy index.jsp
+  copy:
+    src: mysql-sample/index.jsp
+    dest: "{{ tomcat_destination_root }}/{{ tomcat_destination_folder }}/webapps/{{ tomcat_sample_app_name }}"
+    owner: "{{ tomcat_user }}"
+    group: "{{ tomcat_group }}"
+    mode: 0644
+    backup: no
+
+- name: copy web.xml
+  copy:
+    src: mysql-sample/WEB-INF/web.xml
+    dest: "{{ tomcat_destination_root }}/{{ tomcat_destination_folder }}/webapps/{{ tomcat_sample_app_name }}/WEB-INF"
+    owner: "{{ tomcat_user }}"
+    group: "{{ tomcat_group }}"
+    mode: 0644
+    backup: no
+
+- name: copy jar files
+  copy:
+    src: "{{ item }}"
+    dest: "{{ tomcat_destination_root }}/{{ tomcat_destination_folder }}/webapps/{{ tomcat_sample_app_name }}/WEB-INF/lib"
+    owner: "{{ tomcat_user }}"
+    group: "{{ tomcat_group }}"
+    mode: 0644
+    backup: no
+  with_items:
+    - "mysql-sample/WEB-INF/lib/jstl.jar"
+    - "mysql-sample/WEB-INF/lib/mysql-connector-java.jar"
+    - "mysql-sample/WEB-INF/lib/standard.jar"
+
+# End long/individual version
+
+- name: Copy context.xml for sample mysql app
+  template:
+    src: context.xml.j2
+    dest: "{{ tomcat_destination_root }}/{{ tomcat_destination_folder }}/webapps/{{ tomcat_sample_app_name }}/META-INF/context.xml"
+    owner: "{{ tomcat_user }}"
+    group: "{{ tomcat_group }}"
+    mode: 0664
+    backup: no
 
 - name: Set permission
   shell: "chown -Rf {{ tomcat_user }}:{{ tomcat_group }} {{ tomcat_destination_root }}/apache-tomcat-{{ tomcat_edition }}"
@@ -82,7 +149,7 @@
     mode: 0755
     backup: no
 
-- name: Start the service and enable on startup
+- name: Restart the service and enable on startup
   service:
     name: tomcat
     enabled: yes
