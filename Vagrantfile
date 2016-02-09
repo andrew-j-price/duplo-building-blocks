@@ -90,5 +90,5 @@ $configure = <<SCRIPT
   ansible-playbook /vagrant/playbooks/play-ssh-authorized-users.yml
   ansible-playbook /vagrant/playbooks/play-load-balancer.yml
   ansible-playbook /vagrant/playbooks/play-web-server.yml
-  ansible-playbook /vagrant/playbooks/play-db-server.yml
+  ansible-playbook /vagrant/playbooks/play-database-server.yml
 SCRIPT

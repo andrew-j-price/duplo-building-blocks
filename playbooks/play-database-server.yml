@@ -1,8 +1,9 @@
 ---
+
 - hosts: db-servers
   become: yes
   become_user: root
-  gather_facts: True
+  gather_facts: true
   vars_files:
     - vars/common.yml
   roles:

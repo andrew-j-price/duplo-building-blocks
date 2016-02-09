@@ -1,5 +1,9 @@
 ---
 
+- name: enable PPA repo
+  apt_repository:
+    repo: 'ppa:vbernat/haproxy-1.5'
+
 - name: Update cache if greater than 3600 seconds (1 hour)
   apt:
     update_cache: yes
@@ -8,7 +12,7 @@
 - name: Install packages on Ubuntu
   apt:
     name: "{{ item }}"
-    state: present
+    state: latest
   with_items:
     - haproxy
 
@@ -37,6 +41,36 @@
     mode: 0644
     backup: yes
   notify: reload haproxy
+
+- name: Configure rsyslog for haproxy log file generation
+  lineinfile:
+    dest: /etc/rsyslog.conf
+    line: '$ModLoad imudp'
+    regexp: '\$ModLoad imudp'
+  notify: restart rsyslog
+
+- name: Configure rsyslog for haproxy log file generation2
+  lineinfile:
+    dest: /etc/rsyslog.conf
+    line: '$UDPServerRun 514'
+    regexp: '\$UDPServerRun'
+  notify: restart rsyslog
+
+- name: Configure rsyslog for haproxy log file generation3
+  lineinfile:
+    dest: /etc/rsyslog.conf
+    line: '$UDPServerAddress 127.0.0.1'
+    regexp: '\$UDPServerAddress'
+    insertbefore: '\$UDPServerRun'
+  notify: restart rsyslog
+
+- name: Copy rsyslog haproxy config file
+  template:
+    src: rsyslog-haproxy.config.j2
+    dest: /etc/rsyslog.d/haproxy.conf
+    mode: 0644
+    backup: no
+  notify: restart rsyslog
 
 - name: Start the service and enable on startup
   service:

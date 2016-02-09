@@ -19,12 +19,9 @@
     mode: 0644
   notify: restart keepalived
 
-- name: Enable service on startup
-  service: 
-    name: keepalived 
+- name: Start the service and enable on startup
+  service:
+    name: keepalived
+    pattern: /usr/sbin/keepalived
     enabled: yes
-
-- name: Start the service
-  service: 
-    name: keepalived 
     state: started

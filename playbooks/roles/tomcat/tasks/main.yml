@@ -119,8 +119,13 @@
     mode: 0664
     backup: no
 
-- name: Set permission
-  shell: "chown -Rf {{ tomcat_user }}:{{ tomcat_group }} {{ tomcat_destination_root }}/apache-tomcat-{{ tomcat_edition }}"
+- name: Ensure correct owner on folder
+  file:
+    path: "{{ tomcat_destination_root }}/apache-tomcat-{{ tomcat_edition }}"
+    owner: "{{ tomcat_user }}"
+    group: "{{ tomcat_group }}"
+    state: directory
+    recurse: yes
 
 - name: Copy server.xml
   template:
@@ -149,8 +154,9 @@
     mode: 0755
     backup: no
 
-- name: Restart the service and enable on startup
+- name: Start the service and enable on startup
   service:
     name: tomcat
+    pattern: /usr/local/tomcat
     enabled: yes
-    state: restarted
+    state: started
