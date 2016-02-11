@@ -1,0 +1,8 @@
+---
+
+apache_default_port: "80"
+apache_default_folder: "/var/www/html"
+apache_default_group: "www-data"
+apache_default_user: "root"
+apache_default_webmaster: "webmaster@localhost"
+htpasswd_file_location: "/etc/apache2/.htpasswd"

@@ -90,7 +90,7 @@
 - name: Configure mysql bindings
   lineinfile:
     dest: /etc/mysql/my.cnf
-    line: "bind-address            = {{ facter_ipaddress_eth1 }}"
+    line: "bind-address            = {{ ansible_eth1.ipv4.address }}"
     regexp: "^bind-address"
   notify: restart mysql
 

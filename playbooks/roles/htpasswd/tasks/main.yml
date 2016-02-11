@@ -1,0 +1,26 @@
+---
+
+- name: Update cache if greater than 3600 seconds (1 hour)
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Install packages on Ubuntu
+  apt:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - python-passlib
+
+- name: htpasswd file
+  htpasswd:
+    path: "{{ htpasswd_file_location }}"
+    name: "{{ item.1.name }}"
+    password: "{{ item.1.password }}"
+    owner: root
+    group: root
+    mode: 0644
+  with_subelements:
+    - htpasswd_accounts
+    - htpasswd_credentials
+  no_log: yes

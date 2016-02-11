@@ -3,11 +3,24 @@
 keepalived_shared_iface: "eth1"
 keepalived_shared_vip: "192.168.56.70"
 
+apache_default_port: "8081"
+apache_default_group: "www-data"
+apache_default_user: "root"
+
+htpasswd_file_location: "/etc/htpasswd"
+htpasswd_accounts:
+  - name: User Names and Passwords
+    htpasswd_credentials:
+      - { name: admin, password: admin }
+      - { name: jack, password: Password123 }
+      - { name: jill, password: Password123 }
+      - { name: lucas, password: Password1234 }
+
 nginx_default_port: "80"
 
 mysql_root_password: "Password123"
 
-tomcat_port_default: 8080
+tomcat_port_default: "8080"
 tomcat_sample_app_name: "mysql-sample"
 tomcat_sample_app_mysql_user: "tomcat-user"
 tomcat_sample_app_mysql_password: "Password123"
@@ -20,6 +33,17 @@ haproxy_line_item:
   - ' stats realm Haproxy\ Statistics'
   - ' stats uri /'
   - ' stats auth haproxy:haproxy'
+  - ' '
+  - 'listen web-servers-apache'
+  - ' bind {{ keepalived_shared_vip }}:8081'
+  - ' balance roundrobin'
+  - ' mode http'
+  - ' option forwardfor'
+  - ' option httplog'
+  - ' option http-server-close'
+  - ' server web01 192.168.56.73:8081 check inter 2000 rise 2 fall 5'
+  - ' server web02 192.168.56.74:8081 check inter 2000 rise 2 fall 5'
+  - ' server web03 192.168.56.75:8081 check inter 2000 rise 2 fall 5'
   - ' '
   - 'listen web-servers-nginx'
   - ' bind {{ keepalived_shared_vip }}:80'

@@ -1,0 +1,64 @@
+---
+
+- name: Update cache if greater than 3600 seconds (1 hour)
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Install packages on Ubuntu
+  apt:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - apache2
+    - apache2-utils
+
+- name: Copy port configuration file
+  template:
+    src: ports.conf.j2
+    dest: /etc/apache2/ports.conf
+    mode: 0644
+    backup: yes
+
+- name: Set default site configuration
+  template:
+    src: default.conf.j2
+    dest: /etc/apache2/sites-enabled/000-default.conf  # symlink to ../sites-available/000-default.conf
+    mode: 0644
+    backup: yes
+  notify: restart apache2
+
+- name: Update apache2.conf
+  replace: dest=/etc/apache2/apache2.conf
+    regexp='<Directory /var/www/>\n\tOptions Indexes FollowSymLinks\n\tAllowOverride None'
+    replace='<Directory /var/www/>\n\tOptions Indexes FollowSymLinks\n\tAllowOverride All'
+    backup=yes
+  notify: restart apache2
+
+- name: Copy htaccess file
+  template:
+    src: htaccess.j2
+    dest: "{{ apache_default_folder }}/.htaccess"
+    mode: 0644
+    backup: no
+
+- name: Copy html index file
+  template:
+    src: index.html.j2
+    dest: "{{ apache_default_folder }}/index.html"
+    mode: 0644
+    backup: yes
+
+- name: Ensure correct owner on folder
+  file:
+    path: "{{ apache_default_folder }}/"
+    owner: "{{ apache_default_user }}"
+    group: "{{ apache_default_group }}"
+    state: directory
+    recurse: yes
+
+- name: Start the service and enable on startup
+  service:
+    name: apache2
+    enabled: yes
+    state: started

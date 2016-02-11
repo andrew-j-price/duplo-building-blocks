@@ -77,14 +77,15 @@
     - "{{ tomcat_destination_root }}/{{ tomcat_destination_folder }}/webapps/{{ tomcat_sample_app_name }}/WEB-INF"
     - "{{ tomcat_destination_root }}/{{ tomcat_destination_folder }}/webapps/{{ tomcat_sample_app_name }}/WEB-INF/lib"
 
-- name: copy index.jsp
-  copy:
-    src: mysql-sample/index.jsp
-    dest: "{{ tomcat_destination_root }}/{{ tomcat_destination_folder }}/webapps/{{ tomcat_sample_app_name }}"
-    owner: "{{ tomcat_user }}"
-    group: "{{ tomcat_group }}"
-    mode: 0644
-    backup: no
+# Changed to Template
+#- name: copy index.jsp
+#  copy:
+#    src: mysql-sample/index.jsp
+#    dest: "{{ tomcat_destination_root }}/{{ tomcat_destination_folder }}/webapps/{{ tomcat_sample_app_name }}"
+#    owner: "{{ tomcat_user }}"
+#    group: "{{ tomcat_group }}"
+#    mode: 0644
+#    backup: no
 
 - name: copy web.xml
   copy:
@@ -109,6 +110,15 @@
     - "mysql-sample/WEB-INF/lib/standard.jar"
 
 # End long/individual version
+
+- name: Copy index.jsp for sample mysql app
+  template:
+    src: index.jsp.j2
+    dest: "{{ tomcat_destination_root }}/{{ tomcat_destination_folder }}/webapps/{{ tomcat_sample_app_name }}/index.jsp"
+    owner: "{{ tomcat_user }}"
+    group: "{{ tomcat_group }}"
+    mode: 0664
+    backup: no
 
 - name: Copy context.xml for sample mysql app
   template:

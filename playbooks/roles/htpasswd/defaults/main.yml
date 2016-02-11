@@ -1,0 +1,8 @@
+---
+
+htpasswd_file_location: "/etc/htpasswd"
+htpasswd_accounts:
+  - name: User Names and Passwords
+    htpasswd_credentials:
+      - { name: jack, password: Password123 }
+      - { name: jill, password: Password123 }

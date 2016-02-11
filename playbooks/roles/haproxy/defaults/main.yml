@@ -1,0 +1,10 @@
+---
+
+haproxy_line_item:
+  - 'listen stats :8181'
+  - ' mode http'
+  - ' stats enable'
+  - ' stats realm Haproxy\ Statistics'
+  - ' stats uri /'
+  - ' stats auth haproxy:haproxy'
+  - ' '

@@ -1,0 +1,13 @@
+<VirtualHost *:{{ apache_default_port }}>
+    ServerAdmin {{ apache_default_webmaster }}
+    DocumentRoot {{ apache_default_folder }}
+    ErrorLog ${APACHE_LOG_DIR}/error.log
+    CustomLog ${APACHE_LOG_DIR}/access.log combined
+
+    <Directory "{{ apache_default_folder }}">
+        AuthType Basic
+        AuthName "Restricted Content"
+        AuthUserFile {{ htpasswd_file_location }}
+        Require valid-user
+    </Directory>
+</VirtualHost>
