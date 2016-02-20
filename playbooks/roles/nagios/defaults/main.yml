@@ -1,0 +1,38 @@
+---
+
+# User and Group Management
+nagios_user: "nagios"
+nagios_group: "nagios"
+nagios_command_group: "nagcmd"
+web_server_user: "www-data"
+
+# Nagios Server
+nagios_edition: 4.1.1
+nagios_source_location: "https://assets.nagios.com/downloads/nagioscore/releases/nagios-4.1.1.tar.gz"
+nagios_source_md5: ""
+nagios_download_destination: "{{ nagios_temp_folder }}/nagios-{{ nagios_edition }}.tar.gz"
+nagios_build_directory: "{{ nagios_temp_folder }}/nagios-{{ nagios_edition }}/"
+
+# Nagios Plugins
+nagios_plugin_edition: 2.1.1
+nagios_plugin_source_location: "http://nagios-plugins.org/download/nagios-plugins-2.1.1.tar.gz"
+nagios_plugin_source_md5: ""
+nagios_plugin_download_destination: "{{ nagios_temp_folder }}/nagios-plugins-{{ nagios_plugin_edition }}.tar.gz"
+nagios_plugin_build_directory: "{{ nagios_temp_folder }}/nagios-plugins-{{ nagios_plugin_edition }}/"
+
+# Nagios NRPE
+nagios_nrpe_edition: 2.15
+nagios_nrpe_source_location: "http://kent.dl.sourceforge.net/project/nagios/nrpe-2.x/nrpe-2.15/nrpe-2.15.tar.gz"
+nagios_nrpe_source_md5: ""
+nagios_nrpe_download_destination: "{{ nagios_temp_folder }}/nagios-nrpe-{{ nagios_nrpe_edition }}.tar.gz"
+nagios_nrpe_build_directory: "{{ nagios_temp_folder }}/nrpe-{{ nagios_nrpe_edition }}/"
+
+# Global
+nagios_temp_folder: "/var/tmp"
+
+# Additional commands
+nagios_command_line_item:
+  - 'define command{ '
+  - '    command_name check_nrpe'
+  - '    command_line $USER1$/check_nrpe -H $HOSTADDRESS$ -c $ARG1$'
+  - '    }'

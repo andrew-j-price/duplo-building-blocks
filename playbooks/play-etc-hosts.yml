@@ -17,3 +17,4 @@
   - lineinfile: dest=/etc/hosts regexp='^192\.168\.56\.77' line='192.168.56.77 db02' owner=root group=root mode=0644
   - lineinfile: dest=/etc/hosts regexp='^192\.168\.56\.78' line='192.168.56.78 db03' owner=root group=root mode=0644
   - lineinfile: dest=/etc/hosts regexp='^192\.168\.56\.79' line='192.168.56.79 duplo' owner=root group=root mode=0644
+  - lineinfile: dest=/etc/hosts regexp='^192\.168\.56\.80' line='192.168.56.80 sa01' owner=root group=root mode=0644

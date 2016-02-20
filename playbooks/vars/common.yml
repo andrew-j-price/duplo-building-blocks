@@ -11,6 +11,7 @@ htpasswd_file_location: "/etc/htpasswd"
 htpasswd_accounts:
   - name: User Names and Passwords
     htpasswd_credentials:
+      - { name: nagiosadmin, password: nagiosadmin }
       - { name: admin, password: admin }
       - { name: jack, password: Password123 }
       - { name: jill, password: Password123 }

@@ -1,0 +1,232 @@
+---
+
+# Configuration below primarily based upon https://www.digitalocean.com/community/tutorials/how-to-install-nagios-4-and-monitor-your-servers-on-ubuntu-14-04
+
+- name: Update cache if greater than 3600 seconds (1 hour)
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Install packages on Ubuntu
+  apt:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - apache2
+    - apache2-utils
+    - build-essential
+    - libapache2-mod-php5
+    - libgd2-xpm-dev
+    - libssl-dev
+    - openssl
+    - php5-gd
+    - tar
+    - unzip
+    - xinetd
+
+# User and Group Management
+- name: Create nagios user group
+  group: 
+    name: "{{ nagios_group }}"
+    state: present
+
+- name: Create nagios command group
+  group: 
+    name: "{{ nagios_command_group }}"
+    state: present
+
+- name: Create nagios user account
+  user: 
+    name: "{{ nagios_user }}" 
+    group: "{{ nagios_group }}" 
+    shell: /bin/bash 
+    groups: "{{ nagios_command_group }}" 
+    append: yes
+
+- name: Add nagios group to web service user
+  user: 
+    name: "{{ web_server_user }}" 
+    groups: "{{ nagios_command_group }}" 
+    append: yes
+
+# Nagios Server Building
+- name: create directory for Nagios server
+  file:
+    path: "/usr/local/nagios/"
+    owner: "{{ nagios_user }}"
+    group: "{{ nagios_command_group }}"
+    state: directory
+    mode: 0754
+
+- name: create directory for extraction
+  file:
+    path: "{{ nagios_build_directory }}"
+    owner: "{{ nagios_user }}"
+    group: "{{ nagios_group }}"
+    state: directory
+    mode: 0755
+
+- name: download nagios
+  get_url:
+    url: "{{ nagios_source_location }}"
+    dest: "{{ nagios_download_destination }}"
+  register: server_build
+
+- name: extract nagios
+  unarchive:
+    src: "{{ nagios_download_destination }}"
+    dest: "{{ nagios_temp_folder }}"
+    copy: no
+  when: server_build.changed
+
+- name: configure and build nagios
+  command: "{{ item }}"
+  with_items:
+    - "./configure --with-nagios-group=nagios --with-command-group=nagcmd"
+    - "make all"
+    - "sudo make install"
+    - "sudo make install-commandmode"
+    - "sudo make install-init"
+    - "sudo make install-config"
+    - "sudo /usr/bin/install -c -m 644 sample-config/httpd.conf /etc/apache2/sites-available/nagios.conf"
+  args:
+    chdir: "{{ nagios_build_directory }}"
+  when: server_build.changed
+  notify: restart nagios
+
+# Nagios Plugins Building
+- name: create plugin directory for extraction
+  file:
+    path: "{{ nagios_plugin_build_directory }}"
+    owner: "{{ nagios_user }}"
+    group: "{{ nagios_group }}"
+    state: directory
+    mode: 0755
+
+- name: download nagios plugins
+  get_url:
+    url: "{{ nagios_plugin_source_location }}"
+    dest: "{{ nagios_plugin_download_destination }}"
+  register: plugins
+
+- name: extract nagios plugins
+  unarchive:
+    src: "{{ nagios_plugin_download_destination }}"
+    dest: "{{ nagios_temp_folder }}"
+    copy: no
+  when: plugins.changed
+
+- name: configure and build nagios plugins
+  command: "{{ item }}"
+  with_items:
+    - "./configure --with-nagios-user=nagios --with-nagios-group=nagios --with-openssl"
+    - "make"
+    - "sudo make install"
+  args:
+    chdir: "{{ nagios_plugin_build_directory }}"
+  when: plugins.changed
+
+# Nagios NRPE Building
+- name: create nrpe directory for extraction
+  file:
+    path: "{{ nagios_nrpe_build_directory }}"
+    owner: "{{ nagios_user }}"
+    group: "{{ nagios_group }}"
+    state: directory
+    mode: 0755
+
+- name: download nagios nrpe
+  get_url:
+    url: "{{ nagios_nrpe_source_location }}"
+    dest: "{{ nagios_nrpe_download_destination }}"
+  register: nrpe
+
+- name: extract nagios nrpe
+  unarchive:
+    src: "{{ nagios_nrpe_download_destination }}"
+    dest: "{{ nagios_temp_folder }}"
+    copy: no
+  when: nrpe.changed
+
+- name: configure and build nagios nrpe
+  command: "{{ item }}"
+  with_items:
+    - "./configure --enable-command-args --with-nagios-user=nagios --with-nagios-group=nagios --with-ssl=/usr/bin/openssl --with-ssl-lib=/usr/lib/x86_64-linux-gnu"
+    - "make all"
+    - "sudo make install"
+    - "sudo make install-xinetd"
+    - "sudo make install-daemon-config"
+  args:
+    chdir: "{{ nagios_nrpe_build_directory }}"
+  when: nrpe.changed
+
+# Web service configurations
+- name: Set nagios server configuration directory
+  lineinfile:
+    dest: /usr/local/nagios/etc/nagios.cfg
+    line: 'cfg_dir=/usr/local/nagios/etc/servers'
+    regexp: '\cfg_dir\=\/usr\/local\/nagios\/etc\/servers'
+  notify: restart nagios
+
+- name: create directory for server configurations
+  file:
+    path: "/usr/local/nagios/etc/servers"
+    owner: "{{ nagios_user }}"
+    group: "{{ nagios_command_group }}"
+    state: directory
+    mode: 0755
+
+- name: Add check commands
+  lineinfile:
+    dest: /usr/local/nagios/etc/objects/commands.cfg
+    insertafter: EOF
+    state: present
+    line: "{{ item }}"
+  with_items:
+    "{{ nagios_command_line_item }}"
+  notify: reload nagios
+
+- name: enable Apache rewrite modules
+  command: "sudo a2enmod rewrite"
+  when: server_build.changed
+  notify: restart apache
+
+- name: enable Apache cgi modules
+  command: "sudo a2enmod cgi"
+  when: server_build.changed
+  notify: restart apache
+
+- name: Copy nagis.conf
+  template:
+    src: nagios.conf.j2
+    dest: "/etc/apache2/sites-available/nagios.conf"
+    owner: "root"
+    group: "root"
+    mode: 0664
+    backup: no
+  notify: restart apache
+
+- name: create symlink 
+  file:
+    src: "/etc/apache2/sites-available/nagios.conf"
+    dest: "/etc/apache2/sites-enabled/nagios.conf"
+    state: link
+  notify: restart apache
+
+- name: Ensure correct owner on folder
+  file:
+    path: "/usr/local/nagios/"
+    owner: "{{ nagios_user }}"
+    group: "{{ nagios_command_group }}"
+    state: directory
+    recurse: yes
+
+- name: Start the service and enable on startup
+  service:
+    name: "{{ item }}"
+    enabled: yes
+    state: started
+  with_items:  
+    - apache2
+    - nagios
+    - xinetd

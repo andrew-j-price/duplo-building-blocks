@@ -12,11 +12,15 @@ web02
 [db-servers]
 db01
 
+[sa-servers]
+sa01
+
 [vagrant-servers:children]
 local
 lb-servers
 web-servers
 db-servers
+sa-servers
 
 [vagrant-servers:vars]
 ansible_ssh_user=vagrant
