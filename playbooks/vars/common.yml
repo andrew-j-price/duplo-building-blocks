@@ -27,6 +27,35 @@ tomcat_sample_app_mysql_user: "tomcat-user"
 tomcat_sample_app_mysql_password: "Password123"
 tomcat_sample_app_mysql_database: "tomcat_sample"
 
+nagios_host: 192.168.56.80
+
+NagiosClients:
+  - info:
+    NagiosClient_Name: lb01
+    NagiosClient_Alias: load-balancer-01
+    NagiosClient_IP: 192.168.56.71
+  - info:
+    NagiosClient_Name: lb02
+    NagiosClient_Alias: load-balancer-02
+    NagiosClient_IP: 192.168.56.72
+  - info:
+    NagiosClient_Name: web01
+    NagiosClient_Alias: web-server-01
+    NagiosClient_IP: 192.168.56.73
+  - info:
+    NagiosClient_Name: web02
+    NagiosClient_Alias: web-server-02
+    NagiosClient_IP: 192.168.56.74
+  - info:
+    NagiosClient_Name: db01
+    NagiosClient_Alias: database-server-01
+    NagiosClient_IP: 192.168.56.76
+  - info:
+    NagiosClient_Name: sa01
+    NagiosClient_Alias: service-assurance-01
+    NagiosClient_IP: 192.168.56.80
+
+
 haproxy_line_item:
   - 'listen stats :8181'
   - ' mode http'
@@ -70,8 +99,8 @@ haproxy_line_item:
   - ' '
   - 'listen db-servers-mysql'
   - ' bind {{ keepalived_shared_vip }}:3306'
-  - ' balance  roundrobin'
-  - ' mode  tcp'
+  - ' balance roundrobin'
+  - ' mode tcp'
   - ' server db01 192.168.56.76:3306 check inter 2000 rise 2 fall 5'
   - ' server db02 192.168.56.77:3306 check inter 2000 rise 2 fall 5'
   - ' server db03 192.168.56.78:3306 check inter 2000 rise 2 fall 5'

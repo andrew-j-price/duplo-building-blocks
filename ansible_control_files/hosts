@@ -25,3 +25,9 @@ sa-servers
 [vagrant-servers:vars]
 ansible_ssh_user=vagrant
 ansible_ssh_pass=vagrant
+
+[sa-clients:children]
+lb-servers
+web-servers
+db-servers
+sa-servers

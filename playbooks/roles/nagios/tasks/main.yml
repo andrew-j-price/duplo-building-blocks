@@ -176,6 +176,16 @@
     state: directory
     mode: 0755
 
+- name: Add Nagios clients
+  template:
+    src: nagios_clients.j2
+    dest: "/usr/local/nagios/etc/servers/nagios_clients.cfg"
+    owner: "{{ nagios_user }}"
+    group: "{{ nagios_command_group }}"
+    mode: 0664
+    backup: no
+  notify: reload nagios
+
 - name: Add check commands
   lineinfile:
     dest: /usr/local/nagios/etc/objects/commands.cfg

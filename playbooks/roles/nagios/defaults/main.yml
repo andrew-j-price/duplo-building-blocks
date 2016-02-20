@@ -27,10 +27,19 @@ nagios_nrpe_source_md5: ""
 nagios_nrpe_download_destination: "{{ nagios_temp_folder }}/nagios-nrpe-{{ nagios_nrpe_edition }}.tar.gz"
 nagios_nrpe_build_directory: "{{ nagios_temp_folder }}/nrpe-{{ nagios_nrpe_edition }}/"
 
-# Global
+# Other
 nagios_temp_folder: "/var/tmp"
 
-# Additional commands
+NagiosClients:
+  - info:
+    NagiosClient_Name: home
+    NagiosClient_Alias: no-place-like-home
+    NagiosClient_IP: 127.0.0.1
+  - info:
+    NagiosClient_Name: away
+    NagiosClient_Alias: on-vacation
+    NagiosClient_IP: 169.254.111.111
+
 nagios_command_line_item:
   - 'define command{ '
   - '    command_name check_nrpe'

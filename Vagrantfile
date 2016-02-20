@@ -95,5 +95,6 @@ $configure = <<SCRIPT
   ansible-playbook /vagrant/playbooks/play-load-balancer.yml
   ansible-playbook /vagrant/playbooks/play-web-server.yml
   ansible-playbook /vagrant/playbooks/play-database-server.yml
+  ansible-playbook /vagrant/playbooks/play-service-assurance-client.yml
   ansible-playbook /vagrant/playbooks/play-service-assurance-server.yml
 SCRIPT
