@@ -15,6 +15,7 @@
     state: latest
   with_items:
     - haproxy
+    - socat
 
 - name: Configure binding to non-local IPs
   lineinfile:

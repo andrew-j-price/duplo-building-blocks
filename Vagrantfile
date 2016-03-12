@@ -50,7 +50,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     config.vm.hostname = "db01"
     config.vm.network :private_network, ip: "192.168.56.76", :adapter => 2
     config.vm.provider "virtualbox" do |vb|
-      vb.memory = 256
+      vb.memory = 384
       vb.cpus = 1
     end
   end
@@ -61,6 +61,16 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     config.vm.network :private_network, ip: "192.168.56.80", :adapter => 2
     config.vm.provider "virtualbox" do |vb|
       vb.memory = 256
+      vb.cpus = 1
+    end
+  end
+
+  config.vm.define :sa02 do |config|
+    config.vm.box = "ubuntu/trusty64"
+    config.vm.hostname = "sa02"
+    config.vm.network :private_network, ip: "192.168.56.81", :adapter => 2
+    config.vm.provider "virtualbox" do |vb|
+      vb.memory = 512
       vb.cpus = 1
     end
   end
@@ -95,6 +105,7 @@ $configure = <<SCRIPT
   ansible-playbook /vagrant/playbooks/play-load-balancer.yml
   ansible-playbook /vagrant/playbooks/play-web-server.yml
   ansible-playbook /vagrant/playbooks/play-database-server.yml
+  ansible-playbook /vagrant/playbooks/play-service-assurance-elk.yml
   ansible-playbook /vagrant/playbooks/play-service-assurance-client.yml
-  ansible-playbook /vagrant/playbooks/play-service-assurance-server.yml
+  ansible-playbook /vagrant/playbooks/play-service-assurance-nagios.yml
 SCRIPT

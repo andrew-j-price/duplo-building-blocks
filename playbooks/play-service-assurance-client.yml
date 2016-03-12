@@ -8,3 +8,4 @@
     - vars/common.yml
   roles:
     - nagios_client
+    - filebeat_client

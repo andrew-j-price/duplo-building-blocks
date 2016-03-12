@@ -12,8 +12,15 @@ web02
 [db-servers]
 db01
 
-[sa-servers]
+[sa-nagios]
 sa01
+
+[sa-elk]
+sa02
+
+[sa-servers:children]
+sa-nagios
+sa-elk
 
 [vagrant-servers:children]
 local

@@ -1,11 +1,11 @@
 ---
 
-- hosts: db-servers
+- hosts: sa-nagios
   become: yes
   become_user: root
   gather_facts: true
   vars_files:
     - vars/common.yml
   roles:
-    - swap
-    - mysql
+    - htpasswd
+    - nagios

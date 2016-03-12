@@ -12,6 +12,7 @@ htpasswd_accounts:
   - name: User Names and Passwords
     htpasswd_credentials:
       - { name: nagiosadmin, password: nagiosadmin }
+      - { name: kibanaadmin, password: kibanaadmin }
       - { name: admin, password: admin }
       - { name: jack, password: Password123 }
       - { name: jill, password: Password123 }
@@ -54,6 +55,10 @@ NagiosClients:
     NagiosClient_Name: sa01
     NagiosClient_Alias: service-assurance-01
     NagiosClient_IP: 192.168.56.80
+  - info:
+    NagiosClient_Name: sa02
+    NagiosClient_Alias: service-assurance-02
+    NagiosClient_IP: 192.168.56.81
 
 
 haproxy_line_item:

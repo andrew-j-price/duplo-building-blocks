@@ -1,0 +1,4 @@
+---
+
+swap_file_path: "/swapfile"
+swap_file_size: 1048576  #1048576 KB is 1 GB

@@ -1,11 +1,12 @@
 ---
 
-- hosts: sa-servers
+- hosts: sa-elk
   become: yes
   become_user: root
   gather_facts: true
   vars_files:
     - vars/common.yml
   roles:
+    - swap
     - htpasswd
-    - nagios
+    - elk

@@ -161,6 +161,36 @@
   when: nrpe.changed
 
 # Web service configurations
+
+- name: enable Apache rewrite modules
+  command: "sudo a2enmod rewrite"
+  when: server_build.changed
+  notify: restart apache
+
+- name: enable Apache cgi modules
+  command: "sudo a2enmod cgi"
+  when: server_build.changed
+  notify: restart apache
+
+- name: create symlink
+  file:
+    src: "/etc/apache2/sites-available/nagios.conf"
+    dest: "/etc/apache2/sites-enabled/nagios.conf"
+    state: link
+  notify: restart apache
+
+- name: Copy nagis.conf
+  template:
+    src: nagios.conf.j2
+    dest: "/etc/apache2/sites-available/nagios.conf"
+    owner: "root"
+    group: "root"
+    mode: 0664
+    backup: no
+  notify: restart apache
+
+# Nagios service configurations
+
 - name: Set nagios server configuration directory
   lineinfile:
     dest: /usr/local/nagios/etc/nagios.cfg
@@ -186,6 +216,16 @@
     backup: no
   notify: reload nagios
 
+- name: Copy localhost config file
+  copy:
+    src: localhost.cfg
+    dest: "/usr/local/nagios/etc/objects/localhost.cfg"
+    owner: "{{ nagios_user }}"
+    group: "{{ nagios_command_group }}"
+    mode: 0644
+    backup: yes
+  notify: reload nagios
+
 - name: Add check commands
   lineinfile:
     dest: /usr/local/nagios/etc/objects/commands.cfg
@@ -195,33 +235,6 @@
   with_items:
     "{{ nagios_command_line_item }}"
   notify: reload nagios
-
-- name: enable Apache rewrite modules
-  command: "sudo a2enmod rewrite"
-  when: server_build.changed
-  notify: restart apache
-
-- name: enable Apache cgi modules
-  command: "sudo a2enmod cgi"
-  when: server_build.changed
-  notify: restart apache
-
-- name: Copy nagis.conf
-  template:
-    src: nagios.conf.j2
-    dest: "/etc/apache2/sites-available/nagios.conf"
-    owner: "root"
-    group: "root"
-    mode: 0664
-    backup: no
-  notify: restart apache
-
-- name: create symlink 
-  file:
-    src: "/etc/apache2/sites-available/nagios.conf"
-    dest: "/etc/apache2/sites-enabled/nagios.conf"
-    state: link
-  notify: restart apache
 
 - name: Ensure correct owner on folder
   file:
