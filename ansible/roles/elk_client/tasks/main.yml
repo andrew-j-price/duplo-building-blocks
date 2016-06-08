@@ -1,5 +1,12 @@
 ---
 
+- name: Fetch the generated public certificate
+  fetch:
+    src: "/etc/pki/tls/certs/logstash-forwarder.crt"
+    dest: "/tmp/logstash-forwarder.crt"
+    flat: yes
+  delegate_to: "{{ logstash_host }}"
+
 - name: Create PKI directory structure
   file:
     path: "{{ item }}"
@@ -12,7 +19,7 @@
     - /etc/pki/tls
     - /etc/pki/tls/certs
 
-- name: Copy logstash-forwarder certificate    # previously fetched from elk install
+- name: Copy logstash-forwarder certificate
   copy:
     src: "/tmp/logstash-forwarder.crt"
     dest: "/etc/pki/tls/certs/logstash-forwarder.crt"
@@ -42,6 +49,7 @@
     state: present
   with_items:
     - filebeat
+    - topbeat
 
 - name: Configure filebeat
   template:
@@ -51,6 +59,14 @@
     backup: yes
   notify: restart filebeat
 
+- name: Configure topbeat
+  template:
+    src: topbeat.j2
+    dest: /etc/topbeat/topbeat.yml
+    mode: 0644
+    backup: yes
+  notify: restart topbeat
+
 - name: Start the service and enable on startup on Debian based systems
   service:
     name: "{{ item }}"
@@ -58,3 +74,4 @@
     state: started
   with_items:
     - filebeat
+    - topbeat

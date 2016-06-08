@@ -18,6 +18,8 @@ htpasswd_accounts:
       - { name: jill, password: Password123 }
       - { name: lucas, password: Password1234 }
 
+logstash_host: "sa02"
+
 nginx_default_port: "80"
 
 mysql_root_password: "Password123"

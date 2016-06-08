@@ -73,24 +73,18 @@
     owner: root
     group: root
     state: directory
-    mode: 0755
+    mode: 0644
   with_items:
     - /etc/pki
     - /etc/pki/tls
     - /etc/pki/tls/certs
     - /etc/pki/tls/private
 
-- name: Create ssl certificate
+- name: Create SSL certificate
   command: sudo openssl req -subj '/CN=sa02/' -x509 -days 3650 -batch -nodes -newkey rsa:2048 -keyout private/logstash-forwarder.key -out certs/logstash-forwarder.crt
   args:
     chdir: /etc/pki/tls
     creates: /etc/pki/tls/certs/logstash-forwarder.crt
-
-- name: fetch the generated public certificate  # to be used by filebeat_client role
-  fetch:
-    src: "/etc/pki/tls/certs/logstash-forwarder.crt"
-    dest: "/tmp/logstash-forwarder.crt"
-    flat: yes
 
 - name: Copy beats-input.conf
   copy:
@@ -119,36 +113,71 @@
     mode: 0644
   notify: restart logstash
 
-- name: download beats dashboard
+- name: Start elasticsearch
+  service:
+    name: elasticsearch
+    state: started
+  register: start_elasticsearch
+
+- name: Wait for elasticsearch to start
+  wait_for:
+    port: 9200
+    delay: 5
+    timeout: 60
+  when: start_elasticsearch.changed
+
+- name: Download beats dashboard
   get_url:
     url: "https://download.elastic.co/beats/dashboards/beats-dashboards-1.1.0.zip"
-    dest: "/tmp/beats-dashboards-1.1.0.zip"
+    dest: "/var/tmp/beats-dashboards-1.1.0.zip"
   register: beats_build
 
-- name: extract beats dashboard
+- name: Extract beats dashboard
   unarchive:
-    src: "/tmp/beats-dashboards-1.1.0.zip"
-    dest: "/tmp/"
+    src: "/var/tmp/beats-dashboards-1.1.0.zip"
+    dest: "/var/tmp/"
     copy: no
   when: beats_build.changed
 
-- name: load beats dashabods
+- name: Load beats dashabods
   command: ./load.sh
   args:
-    chdir: /tmp/beats-dashboards-1.1.0
+    chdir: /var/tmp/beats-dashboards-1.1.0
   when: beats_build.changed
 
-- name: download Filebeat index template
-  get_url:
-    url: "https://gist.githubusercontent.com/thisismitch/3429023e8438cc25b86c/raw/d8c479e2a1adcea8b1fe86570e42abab0f10f364/filebeat-index-template.json"
-    dest: "/tmp/filebeat-index-template.json"
+# source: https://gist.githubusercontent.com/thisismitch/3429023e8438cc25b86c/raw/d8c479e2a1adcea8b1fe86570e42abab0f10f364/filebeat-index-template.json
+- name: Copy Filebeat index template
+  copy:
+    src: filebeat-index-template.json
+    dest: /var/tmp/filebeat-index-template.json
+    owner: root
+    group: root
+    mode: 0644
   register: filebeat_index_template
 
-- name: load Filebeat index template
+# curl -XPUT 'http://localhost:9200/_template/filebeat?pretty' -d@filebeat-index-template.json
+- name: Load Filebeat index template
   command: curl -XPUT 'http://localhost:9200/_template/filebeat?pretty' -d@filebeat-index-template.json
   args:
-    chdir: /tmp/
+    chdir: /var/tmp/
   when: filebeat_index_template.changed
+
+# source: https://raw.githubusercontent.com/elastic/topbeat/master/etc/topbeat.template.json
+- name: Copy topbeat index template
+  copy:
+    src: topbeat-template.json
+    dest: /var/tmp/topbeat-template.json
+    owner: root
+    group: root
+    mode: 0644
+  register: topbeat_index_template
+
+# curl -XPUT 'http://localhost:9200/_template/topbeat' -d@topbeat-template.json
+- name: Load topbeat index template
+  command: curl -XPUT 'http://localhost:9200/_template/topbeat' -d@topbeat-template.json
+  args:
+    chdir: /var/tmp/
+  when: topbeat_index_template.changed
 
 - name: Start the service and enable on startup on Debian based systems
   service:

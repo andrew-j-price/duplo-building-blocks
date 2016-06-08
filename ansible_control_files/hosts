@@ -2,8 +2,8 @@
 local     ansible_ssh_host=127.0.0.1     ansible_ssh_port=22     
 
 [lb-servers]
-lb01      keepalived_role=master
-lb02      keepalived_role=slave
+lb01      keepalived_role=MASTER
+lb02      keepalived_role=BACKUP
 
 [web-servers]
 web01

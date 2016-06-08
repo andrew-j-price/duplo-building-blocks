@@ -98,14 +98,14 @@ $configure = <<SCRIPT
   sudo apt-add-repository ppa:ansible/ansible
   sudo apt-get update
   sudo apt-get install -y ansible
-  ansible-playbook /vagrant/playbooks/play-etc-hosts.yml -l local
-  ansible-playbook /vagrant/playbooks/play-etc-hosts.yml
-  ansible-playbook /vagrant/playbooks/play-ssh-keygen.yml -l local
-  ansible-playbook /vagrant/playbooks/play-ssh-authorized-users.yml
-  ansible-playbook /vagrant/playbooks/play-load-balancer.yml
-  ansible-playbook /vagrant/playbooks/play-web-server.yml
-  ansible-playbook /vagrant/playbooks/play-database-server.yml
-  ansible-playbook /vagrant/playbooks/play-service-assurance-elk.yml
-  ansible-playbook /vagrant/playbooks/play-service-assurance-client.yml
-  ansible-playbook /vagrant/playbooks/play-service-assurance-nagios.yml
+  ansible-playbook /vagrant/ansible/play-etc-hosts.yml -l local
+  ansible-playbook /vagrant/ansible/play-etc-hosts.yml
+  ansible-playbook /vagrant/ansible/play-ssh-keygen.yml -l local
+  ansible-playbook /vagrant/ansible/play-ssh-authorized-users.yml
+  ansible-playbook /vagrant/ansible/play-load-balancer.yml
+  ansible-playbook /vagrant/ansible/play-web-server.yml
+  ansible-playbook /vagrant/ansible/play-database-server.yml
+  ansible-playbook /vagrant/ansible/play-service-assurance-elk.yml
+  ansible-playbook /vagrant/ansible/play-service-assurance-client.yml
+  ansible-playbook /vagrant/ansible/play-service-assurance-nagios.yml
 SCRIPT
