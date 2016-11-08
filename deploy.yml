@@ -1,0 +1,102 @@
+---
+
+- name: Deploy base configurations to mgmt node
+  hosts: mgmt-servers
+  become: true
+  become_user: root
+  gather_facts: false
+  vars_files:
+    - "group_vars/{{ group_name }}.yml"
+  roles:
+    - { role: base, tags: ['base'] }
+
+- name: Deploy base configurations to all other nodes
+  hosts:
+    - lb-servers
+    - web-servers
+    - db-servers
+    - sa-servers
+  become: true
+  become_user: root
+  gather_facts: false
+  vars_files:
+    - "group_vars/{{ group_name }}.yml"
+  roles:
+    - { role: base, tags: ['base'] }
+
+- name: Deploy load balancer
+  hosts:
+    - lb-servers
+  become: true
+  become_user: root
+  gather_facts: true
+  vars_files:
+    - "group_vars/{{ group_name }}.yml"
+  roles:
+    - { role: keepalived, tags: ['keepalived','lb'] }
+    - { role: haproxy, tags: ['haproxy','lb'] }
+
+- name: Deploy web servers
+  hosts:
+    - web-servers
+  become: true
+  become_user: root
+  gather_facts: true
+  vars_files:
+    - "group_vars/{{ group_name }}.yml"
+  roles:
+    - { role: swap, tags: ['swap','web'] }
+    - { role: htpasswd, tags: ['htpasswd','web'] }
+    - { role: nginx, tags: ['nginx','web'] }
+    - { role: tomcat, tags: ['tomcat','web'] }
+    - { role: apache, tags: ['apache','web'] }
+
+- name: Deploy database servers
+  hosts:
+    - db-servers
+  become: true
+  become_user: root
+  gather_facts: true
+  vars_files:
+    - "group_vars/{{ group_name }}.yml"
+  roles:
+    - { role: swap, tags: ['swap','db'] }
+    - { role: mysql, tags: ['mysql','db'] }
+
+- name: Deploy service assurance ELK
+  hosts:
+    - sa-elk
+  become: true
+  become_user: root
+  gather_facts: true
+  vars_files:
+    - "group_vars/{{ group_name }}.yml"
+  roles:
+    - { role: swap, tags: ['swap','sa'] }
+    - { role: htpasswd, tags: ['htpasswd','sa'] }
+    - { role: elk, tags: ['elk','sa'] }
+
+- name: Deploy service assurance Nagios
+  hosts:
+    - sa-nagios
+  become: true
+  become_user: root
+  gather_facts: true
+  vars_files:
+    - "group_vars/{{ group_name }}.yml"
+  roles:
+    - { role: swap, tags: ['swap','sa'] }
+    - { role: htpasswd, tags: ['htpasswd','sa'] }
+    - { role: nagios, tags: ['nagios','sa'] }
+
+- name: Deploy service assurance clients
+  hosts:
+    - sa-clients
+  become: true
+  become_user: root
+  gather_facts: true
+  vars_files:
+    - "group_vars/{{ group_name }}.yml"
+  roles:
+    - { role: nagios_client, tags: ['nagios_client','sa'] }
+    - { role: elk_client, tags: ['elk_client','sa'] }

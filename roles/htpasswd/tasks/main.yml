@@ -15,12 +15,10 @@
 - name: htpasswd file
   htpasswd:
     path: "{{ htpasswd_file_location }}"
-    name: "{{ item.1.name }}"
-    password: "{{ item.1.password }}"
+    name: "{{ item.value.name }}"
+    password: "{{ item.value.password }}"
     owner: root
     group: root
     mode: 0644
-  with_subelements:
-    - htpasswd_accounts
-    - htpasswd_credentials
+  with_dict: "{{ htpasswd_dict }}"
   no_log: yes

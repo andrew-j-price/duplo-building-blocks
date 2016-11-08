@@ -1,5 +1,17 @@
-[local]
-local     ansible_ssh_host=127.0.0.1     ansible_ssh_port=22     
+[vagrant-servers:children]
+mgmt-servers
+lb-servers
+web-servers
+db-servers
+sa-servers
+
+[vagrant-servers:vars]
+group_name=vagrant
+ansible_ssh_user=vagrant
+ansible_ssh_pass=vagrant
+
+[mgmt-servers]
+duplo     ansible_connection=local
 
 [lb-servers]
 lb01      keepalived_role=MASTER
@@ -21,17 +33,6 @@ sa02
 [sa-servers:children]
 sa-nagios
 sa-elk
-
-[vagrant-servers:children]
-local
-lb-servers
-web-servers
-db-servers
-sa-servers
-
-[vagrant-servers:vars]
-ansible_ssh_user=vagrant
-ansible_ssh_pass=vagrant
 
 [sa-clients:children]
 lb-servers

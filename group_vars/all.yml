@@ -1,28 +1,21 @@
 ---
 
-keepalived_shared_iface: "eth1"
-keepalived_shared_vip: "192.168.56.70"
-
 apache_default_port: "8081"
 apache_default_group: "www-data"
 apache_default_user: "root"
 
-htpasswd_file_location: "/etc/htpasswd"
-htpasswd_accounts:
-  - name: User Names and Passwords
-    htpasswd_credentials:
-      - { name: nagiosadmin, password: nagiosadmin }
-      - { name: kibanaadmin, password: kibanaadmin }
-      - { name: admin, password: admin }
-      - { name: jack, password: Password123 }
-      - { name: jill, password: Password123 }
-      - { name: lucas, password: Password1234 }
+dns_nameservers:
+- 8.8.8.8
+- 8.8.4.4
+
+keepalived_shared_iface: "eth1"
+keepalived_shared_vip: "192.168.56.70"
 
 logstash_host: "sa02"
 
-nginx_default_port: "80"
-
 mysql_root_password: "Password123"
+
+nginx_default_port: "80"
 
 tomcat_port_default: "8080"
 tomcat_sample_app_name: "mysql-sample"
@@ -30,8 +23,31 @@ tomcat_sample_app_mysql_user: "tomcat-user"
 tomcat_sample_app_mysql_password: "Password123"
 tomcat_sample_app_mysql_database: "tomcat_sample"
 
-nagios_host: 192.168.56.80
+htpasswd_file_location: "/etc/htpasswd"
+htpasswd_dict:
+  user01:
+    name: nagiosadmin
+    password: nagiosadmin
+  user02:
+    name: kibanaadmin
+    password: kibanaadmin
+  user03:
+    name: admin
+    password: admin
+  user04:
+    name: jack
+    password: Password123
+  user05:
+    name: jill
+    password: Password123
+  user06:
+    name: lucas
+    password: Password1234
+  user07:
+    name: caroline
+    password: Password1234
 
+nagios_host: 192.168.56.80
 NagiosClients:
   - info:
     NagiosClient_Name: lb01
@@ -61,7 +77,6 @@ NagiosClients:
     NagiosClient_Name: sa02
     NagiosClient_Alias: service-assurance-02
     NagiosClient_IP: 192.168.56.81
-
 
 haproxy_line_item:
   - 'listen stats :8181'

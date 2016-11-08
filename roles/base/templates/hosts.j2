@@ -1,0 +1,24 @@
+# {{ ansible_managed }}
+127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
+
+# Load balancer
+{% if lb_name is defined and lb_ip is defined %}
+{{ lb_ip }}  {{ lb_name }}
+{% endif %}
+
+# Duplo nodes
+{{ duplo_dict.instances[0].ip }} {{ duplo_dict.instances[0].name }}
+{{ duplo_dict.instances[1].ip }} {{ duplo_dict.instances[1].name }}
+{{ duplo_dict.instances[2].ip }} {{ duplo_dict.instances[2].name }}
+{{ duplo_dict.instances[3].ip }} {{ duplo_dict.instances[3].name }}
+{{ duplo_dict.instances[4].ip }} {{ duplo_dict.instances[4].name }}
+{{ duplo_dict.instances[5].ip }} {{ duplo_dict.instances[5].name }}
+{{ duplo_dict.instances[6].ip }} {{ duplo_dict.instances[6].name }}
+
+{% if mgmt_nodes is defined and mgmt_nodes|length > 0 %}
+# Management nodes
+{% for i in mgmt_nodes %}
+{{ i.ip }} {{ i.name }}
+{% endfor %}
+{% endif %}

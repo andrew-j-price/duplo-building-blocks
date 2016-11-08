@@ -1,0 +1,11 @@
+---
+
+htpasswd_file_location: "/etc/htpasswd"
+
+htpasswd_dict:
+  user01:
+    name: jack
+    password: Password123
+  user02:
+    name: jill
+    password: Password123

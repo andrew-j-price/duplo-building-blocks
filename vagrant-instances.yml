@@ -1,0 +1,37 @@
+---
+
+- name: lb01
+  box: ubuntu/trusty64
+  cpus: 1
+  ram: 256
+  ip: 192.168.56.71
+- name: lb02
+  box: ubuntu/trusty64
+  cpus: 1
+  ram: 256
+  ip: 192.168.56.72
+- name: web01
+  box: ubuntu/trusty64
+  cpus: 1
+  ram: 512
+  ip: 192.168.56.73
+- name: web02
+  box: ubuntu/trusty64
+  cpus: 1
+  ram: 512
+  ip: 192.168.56.74
+- name: db01
+  box: ubuntu/trusty64
+  cpus: 1
+  ram: 512
+  ip: 192.168.56.76
+- name: sa01
+  box: ubuntu/trusty64
+  cpus: 1
+  ram: 384
+  ip: 192.168.56.80
+- name: sa02
+  box: ubuntu/trusty64
+  cpus: 1
+  ram: 512
+  ip: 192.168.56.81

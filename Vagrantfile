@@ -1,80 +1,25 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
+Vagrant.require_version ">= 1.6.0"
 VAGRANTFILE_API_VERSION = "2"
 
+require 'yaml'
+servers = YAML.load_file(File.join(File.dirname(__FILE__), 'vagrant-instances.yml'))
+
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
-
-  config.vm.define :lb01 do |config|
-    config.vm.box = "ubuntu/trusty64"
-    config.vm.hostname = "lb01"
-    config.vm.network :private_network, ip: "192.168.56.71", :adapter => 2
-    config.vm.provider "virtualbox" do |vb|
-      vb.memory = 256
-      vb.cpus = 1
+  servers.each do |servers|
+    config.vm.define servers["name"] do |srv|
+      srv.vm.box = servers["box"]
+      srv.vm.hostname = servers["name"]
+      srv.vm.network "private_network", ip: servers["ip"], :adapter => 2
+      srv.vm.provider :virtualbox do |vb|
+        vb.memory = servers["ram"]
+        vb.cpus = servers["cpus"]
+      end
+      srv.vm.provision "shell", inline: $keys
     end
   end
-
-  config.vm.define :lb02 do |config|
-    config.vm.box = "ubuntu/trusty64"
-    config.vm.hostname = "lb02"
-    config.vm.network :private_network, ip: "192.168.56.72", :adapter => 2
-    config.vm.provider "virtualbox" do |vb|
-      vb.memory = 256
-      vb.cpus = 1
-    end
-  end
-
-  config.vm.define :web01 do |config|
-    config.vm.box = "ubuntu/trusty64"
-    config.vm.hostname = "web01"
-    config.vm.network :private_network, ip: "192.168.56.73", :adapter => 2
-    config.vm.provider "virtualbox" do |vb|
-      vb.memory = 256
-      vb.cpus = 1
-    end
-  end
-
-  config.vm.define :web02 do |config|
-    config.vm.box = "ubuntu/trusty64"
-    config.vm.hostname = "web02"
-    config.vm.network :private_network, ip: "192.168.56.74", :adapter => 2
-    config.vm.provider "virtualbox" do |vb|
-      vb.memory = 256
-      vb.cpus = 1
-    end
-  end
-  
-  config.vm.define :db01 do |config|
-    config.vm.box = "ubuntu/trusty64"
-    config.vm.hostname = "db01"
-    config.vm.network :private_network, ip: "192.168.56.76", :adapter => 2
-    config.vm.provider "virtualbox" do |vb|
-      vb.memory = 384
-      vb.cpus = 1
-    end
-  end
-
-  config.vm.define :sa01 do |config|
-    config.vm.box = "ubuntu/trusty64"
-    config.vm.hostname = "sa01"
-    config.vm.network :private_network, ip: "192.168.56.80", :adapter => 2
-    config.vm.provider "virtualbox" do |vb|
-      vb.memory = 256
-      vb.cpus = 1
-    end
-  end
-
-  config.vm.define :sa02 do |config|
-    config.vm.box = "ubuntu/trusty64"
-    config.vm.hostname = "sa02"
-    config.vm.network :private_network, ip: "192.168.56.81", :adapter => 2
-    config.vm.provider "virtualbox" do |vb|
-      vb.memory = 512
-      vb.cpus = 1
-    end
-  end
-
   config.vm.define :duplo do |config|
     config.vm.box = "ubuntu/trusty64"
     config.vm.hostname = "duplo"
@@ -86,26 +31,21 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
       vb.customize ["modifyvm", :id, "--ioapic", "on"]
     end
-    config.vm.provision "file", source: "ansible_control_files/ansible.cfg", destination: "~/ansible.cfg"
-    config.vm.provision "file", source: "ansible_control_files/hosts", destination: "~/hosts"
-    config.vm.provision "shell", inline: $configure
+    config.vm.provision "shell", inline: $keys
+    config.vm.provision "shell", inline: $deploy
   end
-  
 end
 
-$configure = <<SCRIPT
+$keys = <<SCRIPT
+  sudo cp /vagrant/authorized_keys /root/.ssh/authorized_keys
+  cat /vagrant/authorized_keys >> /home/vagrant/.ssh/authorized_keys
+SCRIPT
+
+$deploy = <<SCRIPT
   sudo apt-get install -y software-properties-common
   sudo apt-add-repository ppa:ansible/ansible
   sudo apt-get update
   sudo apt-get install -y ansible
-  ansible-playbook /vagrant/ansible/play-etc-hosts.yml -l local
-  ansible-playbook /vagrant/ansible/play-etc-hosts.yml
-  ansible-playbook /vagrant/ansible/play-ssh-keygen.yml -l local
-  ansible-playbook /vagrant/ansible/play-ssh-authorized-users.yml
-  ansible-playbook /vagrant/ansible/play-load-balancer.yml
-  ansible-playbook /vagrant/ansible/play-web-server.yml
-  ansible-playbook /vagrant/ansible/play-database-server.yml
-  ansible-playbook /vagrant/ansible/play-service-assurance-elk.yml
-  ansible-playbook /vagrant/ansible/play-service-assurance-client.yml
-  ansible-playbook /vagrant/ansible/play-service-assurance-nagios.yml
+  cd /vagrant/
+  ansible-playbook deploy.yml
 SCRIPT

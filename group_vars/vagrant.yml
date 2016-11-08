@@ -1,0 +1,25 @@
+---
+
+duplo_dict:
+  instances:
+  - name: lb01
+    ip: 192.168.56.71
+  - name: lb02
+    ip: 192.168.56.72
+  - name: web01
+    ip: 192.168.56.73
+  - name: web02
+    ip: 192.168.56.74
+  - name: db01
+    ip: 192.168.56.76
+  - name: sa01
+    ip: 192.168.56.80
+  - name: sa02
+    ip: 192.168.56.81
+
+mgmt_nodes:
+  - name:  duplo
+    ip: 192.168.56.79
+
+lb_name: haproxy
+lb_ip: 192.168.56.70

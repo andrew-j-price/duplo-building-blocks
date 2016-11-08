@@ -5,6 +5,7 @@
     src: "/etc/pki/tls/certs/logstash-forwarder.crt"
     dest: "/tmp/logstash-forwarder.crt"
     flat: yes
+  run_once: true
   delegate_to: "{{ logstash_host }}"
 
 - name: Create PKI directory structure
