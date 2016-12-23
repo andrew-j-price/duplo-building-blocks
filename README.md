@@ -15,6 +15,7 @@ This is just a fun little repo I built for myself to improve upon foundational s
   - Service Assurance
     - Nagios
     - ELK
+    - Collectd
   - Configuration Management:
     - Ansible
 
@@ -23,4 +24,7 @@ This is just a fun little repo I built for myself to improve upon foundational s
   - http://192.168.56.70/                             # NGINX web service
   - http://192.168.56.70:8080/mysql-sample/           # Tomcat app with a MySQL backend
   - http://192.168.56.70:8081/                        # Apache site with basic auth
-  - http://192.168.56.80/nagios/                      # Nagios web service
+  - http://192.168.56.80/nagios/                      # Nagios web interface
+  - http://192.168.56.81                              # Kibana web interface
+  - http://192.168.56.82                              # Graphite web interface
+  - http://192.168.56.82/server-status                # Apache status

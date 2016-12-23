@@ -25,7 +25,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     config.vm.hostname = "duplo"
     config.vm.network :private_network, ip: "192.168.56.79", :adapter => 2
     config.vm.provider "virtualbox" do |vb|
-      vb.memory = 192
+      vb.memory = 384
       vb.cpus = 1
       vb.gui = false
       vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]

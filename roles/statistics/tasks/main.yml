@@ -1,0 +1,133 @@
+---
+
+- name: Update cache if greater than 3600 seconds (1 hour)
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Install packages on Ubuntu
+  apt:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - apache2
+    - collectd
+    - collectd-utils
+    - graphite-web
+    - graphite-carbon
+    - libapache2-mod-wsgi
+    - libpq-dev
+    - postgresql
+    - python-psycopg2
+
+- name: create postgresql user
+  postgresql_user:
+    name: "{{ postgresql_username }}"
+    password: "{{ postgresql_password }}"
+  become: true
+  become_user: postgres
+
+- name: create postgresql database
+  postgresql_db:
+    name: "{{ postgresql_dbname }}"
+    owner: "{{ postgresql_username }}"
+  become: true
+  become_user: postgres
+
+- name: Copy graphite local_settings.py
+  template:
+    src: graphite_local_settings.py.j2
+    dest: /etc/graphite/local_settings.py
+    mode: 0644
+    backup: no
+  register: graphite_local_settings
+
+- name: Run syncdb for graphite
+  command: "graphite-manage syncdb --noinput"
+  when: graphite_local_settings.changed
+
+- name: Copy graphite superuser script
+  template:
+    src: 'superuser.sh.j2'
+    dest: '/var/tmp/superuser.sh'
+    owner: root
+    group: root
+    mode: 0744
+    backup: no
+  register: superuser_copied
+
+- name: Crate graphite superuser
+  command: /var/tmp/superuser.sh
+  when: superuser_copied.changed
+
+- name: Copy templates
+  template:
+    src: '{{ item.src }}'
+    dest: '{{ item.dest }}'
+    owner: '{{ item.owner }}'
+    group: '{{ item.group }}'
+    mode: '{{ item.mode }}'
+    backup: no
+  with_items:
+    - info:
+      src: 'graphite-carbon.j2'
+      dest: '/etc/default/graphite-carbon'
+      owner: root
+      group: root
+      mode: '0644'
+    - info:
+      src: 'carbon.conf.j2'
+      dest: '/etc/carbon/carbon.conf'
+      owner: root
+      group: root
+      mode: '0644'
+    - info:
+      src: 'storage-schemas.conf.j2'
+      dest: '/etc/carbon/storage-schemas.conf'
+      owner: root
+      group: root
+      mode: '0644'
+    - info:
+      src: 'storage-aggregation.conf.j2'
+      dest: '/etc/carbon/storage-aggregation.conf'
+      owner: root
+      group: root
+      mode: '0644'
+  notify:
+    - restart carbon
+
+- name: Copy apache2-graphite
+  template:
+    src: 'apache2-graphite.conf.j2'
+    dest: '/etc/apache2/sites-available/apache2-graphite.conf'
+    owner: root
+    group: root
+    mode: 0644
+    backup: no
+  register: apache2_graphite
+
+- name: Configure apache
+  command: "{{ item }}"
+  with_items:
+    - "a2dissite 000-default"
+    - "a2ensite apache2-graphite"
+  when: apache2_graphite.changed
+  notify: reload apache
+
+- name: Configure collectd
+  template:
+    src: collectd.conf.j2
+    dest: /etc/collectd/collectd.conf
+    mode: 0644
+    backup: yes
+  notify: restart collectd
+
+- name: Start the service and enable on startup
+  service:
+    name: "{{ item }}"
+    enabled: yes
+    state: started
+  with_items:
+    - apache2
+    - carbon-cache
+    - collectd

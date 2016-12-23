@@ -1,0 +1,2 @@
+#!/bin/bash
+echo "from django.contrib.auth.models import User; User.objects.create_superuser('{{ graphite_username }}', '{{ graphite_email }}', '{{ graphite_password }}')" | python /usr/lib/python2.7/dist-packages/graphite/manage.py shell

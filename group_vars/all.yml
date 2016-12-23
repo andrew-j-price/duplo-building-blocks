@@ -4,9 +4,16 @@ apache_default_port: "8081"
 apache_default_group: "www-data"
 apache_default_user: "root"
 
+collectd_host: "sa03"
+
 dns_nameservers:
 - 8.8.8.8
 - 8.8.4.4
+
+graphite_secret_key: "something_secure_123"
+graphite_username: "admin"
+graphite_password: "admin"
+graphite_email: "admin@example.com"
 
 keepalived_shared_iface: "eth1"
 keepalived_shared_vip: "192.168.56.70"
@@ -16,6 +23,10 @@ logstash_host: "sa02"
 mysql_root_password: "Password123"
 
 nginx_default_port: "80"
+
+postgresql_dbname: "graphite"
+postgresql_username: "graphite"
+postgresql_password: "Password123"
 
 tomcat_port_default: "8080"
 tomcat_sample_app_name: "mysql-sample"
@@ -77,6 +88,10 @@ NagiosClients:
     NagiosClient_Name: sa02
     NagiosClient_Alias: service-assurance-02
     NagiosClient_IP: 192.168.56.81
+  - info:
+    NagiosClient_Name: sa03
+    NagiosClient_Alias: service-assurance-03
+    NagiosClient_IP: 192.168.56.82
 
 haproxy_line_item:
   - 'listen stats :8181'

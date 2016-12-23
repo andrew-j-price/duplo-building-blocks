@@ -30,9 +30,13 @@ sa01
 [sa-elk]
 sa02
 
+[sa-stats]
+sa03
+
 [sa-servers:children]
 sa-nagios
 sa-elk
+sa-stats
 
 [sa-clients:children]
 lb-servers

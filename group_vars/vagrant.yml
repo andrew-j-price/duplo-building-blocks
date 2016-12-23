@@ -16,6 +16,8 @@ duplo_dict:
     ip: 192.168.56.80
   - name: sa02
     ip: 192.168.56.81
+  - name: sa03
+    ip: 192.168.56.82
 
 mgmt_nodes:
   - name:  duplo
